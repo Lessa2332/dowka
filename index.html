@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Дошка Детектива · Справа №1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pin-red:#c1272d;
+  --pin-blue:#2b6cb0;
+  --pin-gold:#d97706;
+  --pin-gray:#6b7280;
+  --thread:#b91c1c;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden}
+body{
+  font-family:'Nunito',system-ui,sans-serif;
+  background:#0f0a06;
+  display:flex;flex-direction:column;
+  color:#fff;
+}
+
+/* ========== Шапка справи ========== */
+.case-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 22px;
+  background:linear-gradient(180deg,#2a1e14,#18110a);
+  border-bottom:3px solid #78350f;
+  box-shadow:0 4px 12px rgba(0,0,0,.6);
+  z-index:10;
+  flex-shrink:0;
+}
+.case-title{display:flex;align-items:center;gap:16px}
+.case-num{
+  font-family:'Caveat',cursive;font-size:26px;
+  color:#fbbf24;letter-spacing:2px;
+  text-shadow:0 2px 0 rgba(0,0,0,.6);
+}
+.case-header h1{
+  margin:0;font-size:19px;font-weight:900;
+  letter-spacing:2.5px;text-transform:uppercase;
+  color:#fff7e6;text-shadow:0 2px 0 rgba(0,0,0,.5);
+}
+.case-meta{display:flex;align-items:center;gap:14px}
+.detective-emoji{
+  font-size:30px;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.6));
+  animation:wiggle 3s ease-in-out infinite;
+}
+@keyframes wiggle{
+  0%,100%{transform:rotate(-6deg)}
+  50%{transform:rotate(6deg)}
+}
+.progress{
+  padding:6px 16px;background:rgba(120,53,15,.55);
+  border:2px solid #78350f;border-radius:999px;
+  color:#fde68a;font-size:13px;font-weight:800;
+  letter-spacing:1.2px;
+}
+.progress b{color:#fff7e6;font-size:15px}
+
+/* ========== Дошка ========== */
+.board{
+  flex:1;position:relative;overflow:hidden;
+  background-color:#8b5a2b;
+  background-image:
+    radial-gradient(ellipse at 50% 15%, rgba(255,220,170,.16), transparent 55%),
+    radial-gradient(circle at 15% 30%, rgba(0,0,0,.4) 1px, transparent 1.7px),
+    radial-gradient(circle at 65% 75%, rgba(0,0,0,.32) 1.3px, transparent 2.1px),
+    radial-gradient(circle at 40% 55%, rgba(255,230,180,.16) .8px, transparent 1.4px),
+    radial-gradient(circle at 88% 20%, rgba(0,0,0,.35) 1.1px, transparent 1.8px),
+    linear-gradient(180deg,#a06c3c 0%,#7a4f28 45%,#5c3a1c 100%);
+  background-size:
+    100% 100%,
+    7px 7px,
+    11px 11px,
+    5px 5px,
+    9px 9px,
+    100% 100%;
+}
+.board::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,.4) 110%);
+  pointer-events:none;z-index:0;
+}
+
+.threads{
+  position:absolute;inset:0;width:100%;height:100%;
+  pointer-events:none;z-index:1;
+}
+
+/* ========== Картки ========== */
+.card{
+  position:absolute;
+  width:230px;
+  padding:16px 16px 14px;
+  background:linear-gradient(145deg,#fdf8ee,#f3ead2);
+  border-radius:3px;
+  color:#2d2416;
+  box-shadow:
+    0 12px 26px rgba(0,0,0,.42),
+    0 3px 8px rgba(0,0,0,.24),
+    inset 0 0 0 1px rgba(0,0,0,.06);
+  cursor:grab;
+  user-select:none;
+  z-index:2;
+  opacity:0;
+  transform:scale(.55) rotate(-10deg);
+  transform-origin:center top;
+  transition:opacity .45s ease, transform .5s cubic-bezier(.34,1.56,.64,1), box-shadow .2s;
+  pointer-events:none;
+  touch-action:none;
+}
+.card.revealed{
+  opacity:1;
+  transform:scale(1) rotate(var(--rotate, 0deg));
+  pointer-events:auto;
+}
+.card.dragging{
+  cursor:grabbing;
+  box-shadow:
+    0 24px 48px rgba(0,0,0,.55),
+    0 6px 14px rgba(0,0,0,.35),
+    inset 0 0 0 1px rgba(0,0,0,.06);
+  transition:box-shadow .15s;
+}
+
+/* Шпилька */
+.card::before{
+  content:'';position:absolute;
+  top:-13px;left:50%;
+  width:22px;height:22px;
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #ff5757 0%, #c1272d 45%, #7a0f13 100%);
+  box-shadow:
+    0 4px 8px rgba(0,0,0,.55),
+    0 2px 3px rgba(0,0,0,.4),
+    inset 0 -2px 4px rgba(0,0,0,.35),
+    inset 0 2px 3px rgba(255,255,255,.35);
+  transform:translateX(-50%);
+  z-index:3;pointer-events:none;
+}
+/* Блиск на шпильці */
+.card::after{
+  content:'';position:absolute;
+  top:-9px;left:calc(50% - 4px);
+  width:5px;height:5px;
+  border-radius:50%;
+  background:rgba(255,255,255,.75);
+  filter:blur(.4px);
+  z-index:4;pointer-events:none;
+}
+
+/* Варіанти шпильок */
+.card[data-pin="blue"]::before{background:radial-gradient(circle at 35% 30%, #7ab8ff 0%, #2b6cb0 45%, #1a3d6b 100%)}
+.card[data-pin="gold"]::before{background:radial-gradient(circle at 35% 30%, #fcd34d 0%, #d97706 45%, #7c4a0a 100%)}
+.card[data-pin="gray"]::before{background:radial-gradient(circle at 35% 30%, #b8bcc4 0%, #6b7280 45%, #374151 100%)}
+
+/* Типи карток */
+.card[data-variant="mystery"]{
+  background:linear-gradient(145deg,#fff7d6,#fde68a);
+  border-left:5px solid #d97706;
+}
+.card[data-variant="hot"]{
+  background:linear-gradient(145deg,#fff2e8,#ffd7b5);
+  border-left:5px solid #dc2626;
+  box-shadow:0 12px 32px rgba(220,38,38,.35),0 3px 8px rgba(0,0,0,.24),inset 0 0 0 1px rgba(0,0,0,.06);
+}
+.card[data-variant="rejected"]{
+  opacity:.62;
+}
+.card[data-variant="rejected"].revealed{
+  opacity:.65;
+}
+.card[data-variant="rejected"] .card-title{
+  text-decoration:line-through;
+  text-decoration-color:#dc2626;
+  text-decoration-thickness:2.5px;
+}
+.card[data-variant="confirmed"]{
+  background:linear-gradient(145deg,#ecfdf5,#bbf7d0);
+  border-left:5px solid #16a34a;
+}
+.card[data-variant="clue"]{
+  background:linear-gradient(145deg,#f3e8ff,#ddd6fe);
+  border-left:5px solid #7c3aed;
+}
+.card[data-variant="verdict"]{
+  background:linear-gradient(145deg,#fef3c7,#fcd34d);
+  border-left:5px solid #b45309;
+  transform-origin:center top;
+}
+.card[data-variant="verdict"] .card-title{
+  color:#7c2d12;
+  font-size:26px;
+}
+.card[data-variant="method"]{
+  background:linear-gradient(145deg,#e0f2fe,#bae6fd);
+  border-left:5px solid #0369a1;
+}
+
+.card-label{
+  font-family:'Nunito',sans-serif;
+  font-size:10px;font-weight:900;
+  letter-spacing:2px;
+  color:#a16207;
+  text-transform:uppercase;
+  margin-bottom:6px;
+}
+.card[data-variant="hot"] .card-label{color:#b91c1c}
+.card[data-variant="confirmed"] .card-label{color:#15803d}
+.card[data-variant="clue"] .card-label{color:#6d28d9}
+.card[data-variant="verdict"] .card-label{color:#92400e}
+.card[data-variant="method"] .card-label{color:#075985}
+
+.card-icon{
+  font-size:26px;line-height:1;
+  margin-bottom:6px;
+  filter:drop-shadow(0 2px 3px rgba(0,0,0,.15));
+}
+.card-title{
+  font-family:'Caveat',cursive;
+  font-size:23px;
+  font-weight:700;
+  line-height:1.05;
+  margin-bottom:8px;
+  color:#2d2416;
+  letter-spacing:.3px;
+}
+.card-text{
+  font-family:'Nunito',sans-serif;
+  font-size:13px;
+  font-weight:700;
+  line-height:1.5;
+  color:#4b4130;
+  white-space:pre-line;
+}
+.card[data-variant="method"] .card-text{
+  font-family:'Caveat',cursive;
+  font-size:19px;
+  line-height:1.35;
+  color:#0c4a6e;
+  font-weight:700;
+}
+
+/* ========== Підвал з кнопками ========== */
+.controls{
+  display:flex;justify-content:center;align-items:center;gap:14px;
+  padding:14px 20px;
+  background:linear-gradient(0deg,#2a1e14,#18110a);
+  border-top:3px solid #78350f;
+  z-index:10;
+  flex-shrink:0;
+}
+.btn{
+  padding:12px 26px;
+  font-family:'Nunito',sans-serif;
+  font-weight:900;font-size:15px;
+  letter-spacing:.5px;
+  border:none;border-radius:14px;
+  cursor:pointer;
+  transition:transform .15s, box-shadow .15s, filter .15s;
+  display:inline-flex;align-items:center;gap:8px;
+}
+.btn:active{transform:translateY(2px)}
+.btn-next{
+  background:linear-gradient(145deg,#fbbf24,#d97706);
+  color:#3a1e00;
+  box-shadow:0 4px 0 #92400e, 0 8px 20px rgba(217,119,6,.5);
+}
+.btn-next:active{box-shadow:0 1px 0 #92400e}
+.btn-reset{
+  background:rgba(120,53,15,.4);
+  border:2px solid #78350f;
+  color:#fde68a;
+  box-shadow:0 3px 0 rgba(0,0,0,.3);
+}
+.btn-reset:active{box-shadow:0 1px 0 rgba(0,0,0,.3)}
+.btn:disabled{
+  opacity:.4;cursor:not-allowed;filter:grayscale(.5);
+}
+
+.hint-tip{
+  position:absolute;
+  bottom:20px;left:50%;
+  transform:translateX(-50%);
+  padding:10px 22px;
+  background:rgba(0,0,0,.75);
+  border:2px solid rgba(251,191,36,.5);
+  border-radius:999px;
+  color:#fde68a;
+  font-size:13px;font-weight:800;
+  letter-spacing:.5px;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .6s;
+  z-index:5;
+  backdrop-filter:blur(6px);
+}
+.hint-tip.show{opacity:1}
+
+/* Спалах при появі картки */
+@keyframes flash{
+  0%{box-shadow:0 0 0 0 rgba(255,240,150,.9), 0 12px 26px rgba(0,0,0,.42)}
+  100%{box-shadow:0 0 0 30px rgba(255,240,150,0), 0 12px 26px rgba(0,0,0,.42)}
+}
+.card.just-revealed{
+  animation:flash .8s ease-out;
+}
+
+@media (max-width:900px){
+  .card{width:180px;padding:12px}
+  .card-title{font-size:19px}
+  .card-text{font-size:11.5px}
+  .case-header h1{font-size:15px}
+  .case-num{font-size:20px}
+  .detective-emoji{font-size:24px}
+}
+</style>
+</head>
+<body>
+
+<header class="case-header">
+  <div class="case-title">
+    <span class="case-num">СПРАВА №1</span>
+    <h1>Підмінені знаки</h1>
+  </div>
+  <div class="case-meta">
+    <span class="detective-emoji">🕵️</span>
+    <span class="progress">Крок <b id="stepNum">0</b> / 9</span>
+  </div>
+</header>
+
+<main class="board" id="board">
+  <svg class="threads" id="threads"></svg>
+  <div class="hint-tip" id="hintTip">🔍 Натисни «Наступний доказ» — і побачиш, як розкривається справа</div>
+</main>
+
+<footer class="controls">
+  <button class="btn btn-next" id="nextBtn">▶️ Наступний доказ</button>
+  <button class="btn btn-reset" id="resetBtn">🔄 Спочатку</button>
+</footer>
+
+<script>
+/* ============================================================
+   ДАНІ: 9 карток у порядку розкриття
+   ============================================================ */
+const CARDS = [
+  {
+    id: 'question',
+    x: 10, y: 10, rotate: -2,
+    label: 'ЗАГАДКА',
+    icon: '❓',
+    title: 'Хто підмінює знаки?',
+    text: 'У місті зламалися всі вказівники.\nКур\'єри їдуть не туди.',
+    variant: 'mystery',
+    pin: 'gold'
+  },
+  {
+    id: 'paper',
+    x: 10, y: 42, rotate: 1.5,
+    label: 'ДОКАЗ 1',
+    icon: '📄',
+    title: 'Папір зі стрілкою',
+    text: 'Стрілка вказує → ПРАВОРУЧ',
+    variant: 'evidence',
+    pin: 'red'
+  },
+  {
+    id: 'emptyGlass',
+    x: 36, y: 10, rotate: -1,
+    label: 'ДОКАЗ 2',
+    icon: '🥛',
+    title: 'Порожня склянка',
+    text: 'Стрілка НЕ змінюється → НІ',
+    variant: 'evidence',
+    pin: 'blue'
+  },
+  {
+    id: 'waterGlass',
+    x: 36, y: 55, rotate: 2,
+    label: 'ДОКАЗ 3',
+    icon: '💧',
+    title: 'Склянка з водою',
+    text: 'Стрілка ПЕРЕВЕРТАЄТЬСЯ → ЛІВОРУЧ',
+    variant: 'hot',
+    pin: 'red'
+  },
+  {
+    id: 'version1',
+    x: 62, y: 10, rotate: -2,
+    label: 'ВЕРСІЯ 1',
+    icon: '❌',
+    title: 'Винне скло',
+    text: 'Перевірка — НІ.\nСкло не при чому.',
+    variant: 'rejected',
+    pin: 'gray'
+  },
+  {
+    id: 'version2',
+    x: 62, y: 52, rotate: 1,
+    label: 'ВЕРСІЯ 2',
+    icon: '✅',
+    title: 'Винна вода',
+    text: 'Перевірка — ТАК!\nВода змінює напрямок.',
+    variant: 'confirmed',
+    pin: 'red'
+  },
+  {
+    id: 'focus',
+    x: 84, y: 18, rotate: -1,
+    label: 'КЛЮЧ',
+    icon: '🎯',
+    title: 'Фокус',
+    text: 'Точка, де промені світла\nперетинаються',
+    variant: 'clue',
+    pin: 'red'
+  },
+  {
+    id: 'verdict',
+    x: 82, y: 62, rotate: 1.5,
+    label: 'ВИРОК',
+    icon: '⚖️',
+    title: 'Вода = опукла лінза',
+    text: 'Заломлення світла у фокусі',
+    variant: 'verdict',
+    pin: 'gold'
+  },
+  {
+    id: 'method',
+    x: 10, y: 72, rotate: -1.5,
+    label: 'МЕТОД',
+    icon: '🔬',
+    title: '4 етапи досліду',
+    text: '1. Підготовка\n2. Матеріали\n3. Проведення\n4. Висновок',
+    variant: 'method',
+    pin: 'blue'
+  }
+];
+
+/* ============================================================
+   НИТКИ між картками (від → до)
+   ============================================================ */
+const THREADS = [
+  { from: 'question',  to: 'paper',      color: '#b91c1c', width: 3.5 },
+  { from: 'paper',     to: 'emptyGlass', color: '#b91c1c', width: 3 },
+  { from: 'emptyGlass',to: 'waterGlass', color: '#b91c1c', width: 4 },
+  { from: 'waterGlass',to: 'version1',   color: '#6b7280', width: 2.5, dashed: true },
+  { from: 'waterGlass',to: 'version2',   color: '#b91c1c', width: 4 },
+  { from: 'version2',  to: 'focus',      color: '#b91c1c', width: 3.5 },
+  { from: 'focus',     to: 'verdict',    color: '#b91c1c', width: 4.5 },
+  { from: 'paper',     to: 'method',     color: '#0369a1', width: 2.5, dashed: true }
+];
+
+/* ============================================================
+   СТАН
+   ============================================================ */
+const board = document.getElementById('board');
+const threadsSvg = document.getElementById('threads');
+const cardEls = {};
+let revealedCount = 0;
+let hintShown = false;
+
+/* ============================================================
+   СТВОРЕННЯ КАРТОК
+   ============================================================ */
+function createCards(){
+  CARDS.forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.dataset.id = c.id;
+    el.dataset.pin = c.pin;
+    el.dataset.variant = c.variant || 'evidence';
+    el.style.left = c.x + '%';
+    el.style.top = c.y + '%';
+    el.style.setProperty('--rotate', c.rotate + 'deg');
+    el.innerHTML = `
+      <div class="card-label">${c.label}</div>
+      <div class="card-icon">${c.icon}</div>
+      <div class="card-title">${c.title}</div>
+      <div class="card-text">${c.text}</div>
+    `;
+    // Drag
+    el.addEventListener('pointerdown', onPointerDown);
+    board.appendChild(el);
+    cardEls[c.id] = el;
+  });
+}
+
+/* ============================================================
+   ПОКАЗ НАСТУПНОЇ КАРТКИ
+   ============================================================ */
+function revealNext(){
+  if (revealedCount >= CARDS.length) return;
+  const card = CARDS[revealedCount];
+  const el = cardEls[card.id];
+  el.classList.add('revealed');
+  el.classList.add('just-revealed');
+  setTimeout(() => el.classList.remove('just-revealed'), 900);
+
+  revealedCount++;
+  document.getElementById('stepNum').textContent = revealedCount;
+
+  if (revealedCount === CARDS.length){
+    document.getElementById('nextBtn').disabled = true;
+    document.getElementById('nextBtn').textContent = '✅ Справу розкрито';
+  }
+
+  // Оновити нитки після появи
+  updateThreads();
+  playDing();
+
+  // Сховати підказку
+  if (!hintShown){
+    hintShown = true;
+    document.getElementById('hintTip').classList.remove('show');
+  }
+}
+
+function resetAll(){
+  revealedCount = 0;
+  document.getElementById('stepNum').textContent = '0';
+  document.getElementById('nextBtn').disabled = false;
+  document.getElementById('nextBtn').textContent = '▶️ Наступний доказ';
+  Object.values(cardEls).forEach(el => {
+    el.classList.remove('revealed', 'dragging', 'just-revealed');
+    el.style.zIndex = '';
+  });
+  threadsSvg.innerHTML = '';
+  showHint();
+}
+
+function showHint(){
+  const hint = document.getElementById('hintTip');
+  hint.classList.add('show');
+  setTimeout(() => {
+    if (revealedCount === 0) hint.classList.remove('show');
+  }, 4500);
+}
+
+/* ============================================================
+   НИТКИ
+   ============================================================ */
+function updateThreads(){
+  threadsSvg.innerHTML = '';
+  const boardRect = board.getBoundingClientRect();
+
+  THREADS.forEach(t => {
+    const fromEl = cardEls[t.from];
+    const toEl = cardEls[t.to];
+    if (!fromEl || !toEl) return;
+    if (!fromEl.classList.contains('revealed')) return;
+    if (!toEl.classList.contains('revealed')) return;
+
+    const r1 = fromEl.getBoundingClientRect();
+    const r2 = toEl.getBoundingClientRect();
+
+    // Координати відносно дошки
+    const c1 = {
+      left: r1.left - boardRect.left,
+      right: r1.right - boardRect.left,
+      top: r1.top - boardRect.top,
+      bottom: r1.bottom - boardRect.top,
+      cx: r1.left - boardRect.left + r1.width / 2,
+      cy: r1.top - boardRect.top + r1.height / 2
+    };
+    const c2 = {
+      left: r2.left - boardRect.left,
+      right: r2.right - boardRect.left,
+      top: r2.top - boardRect.top,
+      bottom: r2.bottom - boardRect.top,
+      cx: r2.left - boardRect.left + r2.width / 2,
+      cy: r2.top - boardRect.top + r2.height / 2
+    };
+
+    // Обираємо найкоротший шлях між прямокутниками
+    const dx = c2.cx - c1.cx;
+    const dy = c2.cy - c1.cy;
+    let p1, p2;
+
+    if (Math.abs(dx) > Math.abs(dy) * 1.2) {
+      // Горизонтальне сполучення
+      if (dx > 0) {
+        p1 = { x: c1.right, y: c1.cy };
+        p2 = { x: c2.left, y: c2.cy };
+      } else {
+        p1 = { x: c1.left, y: c1.cy };
+        p2 = { x: c2.right, y: c2.cy };
+      }
+    } else if (Math.abs(dy) > Math.abs(dx) * 1.2) {
+      // Вертикальне сполучення
+      if (dy > 0) {
+        p1 = { x: c1.cx, y: c1.bottom };
+        p2 = { x: c2.cx, y: c2.top };
+      } else {
+        p1 = { x: c1.cx, y: c1.top };
+        p2 = { x: c2.cx, y: c2.bottom };
+      }
+    } else {
+      // Діагональ — використовуємо центр
+      p1 = { x: c1.cx, y: c1.cy };
+      p2 = { x: c2.cx, y: c2.cy };
+    }
+
+    // Кубічна Безьє для природного вигину
+    const ddx = p2.x - p1.x;
+    const ddy = p2.y - p1.y;
+    const cp1x = p1.x + ddx * 0.45;
+    const cp1y = p1.y + ddy * 0.08;
+    const cp2x = p2.x - ddx * 0.45;
+    const cp2y = p2.y - ddy * 0.08;
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', `M ${p1.x} ${p1.y} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`);
+    path.setAttribute('stroke', t.color);
+    path.setAttribute('stroke-width', t.width);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke-linecap', 'round');
+    if (t.dashed) path.setAttribute('stroke-dasharray', '9 7');
+    path.style.filter = 'drop-shadow(0 3px 3px rgba(0,0,0,.55))';
+    path.style.opacity = '0';
+    path.style.transition = 'opacity .4s ease';
+    threadsSvg.appendChild(path);
+    requestAnimationFrame(() => { path.style.opacity = '1'; });
+  });
+}
+
+/* ============================================================
+   ПЕРЕТЯГУВАННЯ КАРТОК
+   ============================================================ */
+let dragging = null;
+let dragOffset = { x: 0, y: 0 };
+
+function onPointerDown(e){
+  if (!e.currentTarget.classList.contains('revealed')) return;
+  e.preventDefault();
+  const card = e.currentTarget;
+  const rect = card.getBoundingClientRect();
+  dragOffset = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  dragging = card;
+  try { card.setPointerCapture(e.pointerId); } catch(err){}
+  card.classList.add('dragging');
+  card.style.zIndex = 100;
+
+  card.addEventListener('pointermove', onPointerMove);
+  card.addEventListener('pointerup', onPointerUp);
+  card.addEventListener('pointercancel', onPointerUp);
+}
+
+function onPointerMove(e){
+  if (!dragging) return;
+  e.preventDefault();
+  const boardRect = board.getBoundingClientRect();
+  let x = e.clientX - boardRect.left - dragOffset.x;
+  let y = e.clientY - boardRect.top - dragOffset.y;
+
+  // Клампимо в межах дошки
+  const maxX = boardRect.width - dragging.offsetWidth;
+  const maxY = boardRect.height - dragging.offsetHeight;
+  x = Math.max(0, Math.min(maxX, x));
+  y = Math.max(0, Math.min(maxY, y));
+
+  dragging.style.left = (x / boardRect.width * 100) + '%';
+  dragging.style.top = (y / boardRect.height * 100) + '%';
+
+  updateThreads();
+}
+
+function onPointerUp(e){
+  if (!dragging) return;
+  dragging.classList.remove('dragging');
+  dragging.style.zIndex = '';
+  dragging.removeEventListener('pointermove', onPointerMove);
+  dragging.removeEventListener('pointerup', onPointerUp);
+  dragging.removeEventListener('pointercancel', onPointerUp);
+  dragging = null;
+}
+
+/* ============================================================
+   ЗВУК — короткий «дзинь» на появу картки
+   ============================================================ */
+let audioCtx = null;
+function playDing(){
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const now = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, now);
+    osc.frequency.exponentialRampToValueAtTime(1320, now + 0.08);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.18, now + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now);
+    osc.stop(now + 0.4);
+  } catch(e){}
+}
+
+/* ============================================================
+   СТАРТ
+   ============================================================ */
+document.getElementById('nextBtn').addEventListener('click', revealNext);
+document.getElementById('resetBtn').addEventListener('click', resetAll);
+
+// Клавіатура: пробіл або → — наступна картка
+window.addEventListener('keydown', (e) => {
+  if (e.code === 'Space' || e.code === 'ArrowRight'){
+    e.preventDefault();
+    revealNext();
+  }
+  if (e.code === 'KeyR' && e.shiftKey){
+    e.preventDefault();
+    resetAll();
+  }
+});
+
+window.addEventListener('resize', updateThreads);
+
+createCards();
+setTimeout(showHint, 500);
+</script>
+</body>
+</html>

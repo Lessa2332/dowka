@@ -12,6 +12,7 @@
   --pin-blue:#2b6cb0;
   --pin-gold:#d97706;
   --pin-gray:#6b7280;
+  --pin-violet:#7c3aed;
   --thread:#b91c1c;
 }
 *{box-sizing:border-box}
@@ -143,7 +144,6 @@ body{
   transform:translateX(-50%);
   z-index:3;pointer-events:none;
 }
-/* Блиск на шпильці */
 .card::after{
   content:'';position:absolute;
   top:-9px;left:calc(50% - 4px);
@@ -158,6 +158,7 @@ body{
 .card[data-pin="blue"]::before{background:radial-gradient(circle at 35% 30%, #7ab8ff 0%, #2b6cb0 45%, #1a3d6b 100%)}
 .card[data-pin="gold"]::before{background:radial-gradient(circle at 35% 30%, #fcd34d 0%, #d97706 45%, #7c4a0a 100%)}
 .card[data-pin="gray"]::before{background:radial-gradient(circle at 35% 30%, #b8bcc4 0%, #6b7280 45%, #374151 100%)}
+.card[data-pin="violet"]::before{background:radial-gradient(circle at 35% 30%, #c4b5fd 0%, #7c3aed 45%, #4c1d95 100%)}
 
 /* Типи карток */
 .card[data-variant="mystery"]{
@@ -169,12 +170,8 @@ body{
   border-left:5px solid #dc2626;
   box-shadow:0 12px 32px rgba(220,38,38,.35),0 3px 8px rgba(0,0,0,.24),inset 0 0 0 1px rgba(0,0,0,.06);
 }
-.card[data-variant="rejected"]{
-  opacity:.62;
-}
-.card[data-variant="rejected"].revealed{
-  opacity:.65;
-}
+.card[data-variant="rejected"]{opacity:.62}
+.card[data-variant="rejected"].revealed{opacity:.65}
 .card[data-variant="rejected"] .card-title{
   text-decoration:line-through;
   text-decoration-color:#dc2626;
@@ -197,10 +194,11 @@ body{
   color:#7c2d12;
   font-size:26px;
 }
-.card[data-variant="method"]{
+.card[data-variant="step"]{
   background:linear-gradient(145deg,#e0f2fe,#bae6fd);
   border-left:5px solid #0369a1;
 }
+.card[data-variant="step"] .card-label{color:#075985}
 
 .card-label{
   font-family:'Nunito',sans-serif;
@@ -214,7 +212,7 @@ body{
 .card[data-variant="confirmed"] .card-label{color:#15803d}
 .card[data-variant="clue"] .card-label{color:#6d28d9}
 .card[data-variant="verdict"] .card-label{color:#92400e}
-.card[data-variant="method"] .card-label{color:#075985}
+.card[data-variant="step"] .card-label{color:#075985}
 
 .card-icon{
   font-size:26px;line-height:1;
@@ -238,9 +236,9 @@ body{
   color:#4b4130;
   white-space:pre-line;
 }
-.card[data-variant="method"] .card-text{
+.card[data-variant="step"] .card-text{
   font-family:'Caveat',cursive;
-  font-size:19px;
+  font-size:18px;
   line-height:1.35;
   color:#0c4a6e;
   font-weight:700;
@@ -302,14 +300,11 @@ body{
 }
 .hint-tip.show{opacity:1}
 
-/* Спалах при появі картки */
 @keyframes flash{
   0%{box-shadow:0 0 0 0 rgba(255,240,150,.9), 0 12px 26px rgba(0,0,0,.42)}
   100%{box-shadow:0 0 0 30px rgba(255,240,150,0), 0 12px 26px rgba(0,0,0,.42)}
 }
-.card.just-revealed{
-  animation:flash .8s ease-out;
-}
+.card.just-revealed{animation:flash .8s ease-out}
 
 @media (max-width:900px){
   .card{width:180px;padding:12px}
@@ -336,123 +331,123 @@ body{
 
 <main class="board" id="board">
   <svg class="threads" id="threads"></svg>
-  <div class="hint-tip" id="hintTip">🔍 Натисни «Наступний доказ» — і побачиш, як розкривається справа</div>
+  <div class="hint-tip" id="hintTip">🔍 Натисни «Наступний крок» — і побачиш, як розкривається справа</div>
 </main>
 
 <footer class="controls">
-  <button class="btn btn-next" id="nextBtn">▶️ Наступний доказ</button>
+  <button class="btn btn-next" id="nextBtn">▶️ Наступний крок</button>
   <button class="btn btn-reset" id="resetBtn">🔄 Спочатку</button>
 </footer>
 
 <script>
 /* ============================================================
-   ДАНІ: 9 карток у порядку розкриття
+   9 КАРТОК — під 5 кроків
    ============================================================ */
 const CARDS = [
   {
     id: 'question',
-    x: 10, y: 10, rotate: -2,
+    x: 6, y: 8, rotate: -2,
     label: 'ЗАГАДКА',
     icon: '❓',
     title: 'Хто підмінює знаки?',
-    text: 'У місті зламалися всі вказівники.\nКур\'єри їдуть не туди.',
+    text: 'Біля кожного вказівника — склянка з водою.\nУсі стрілки показують неправильно.',
     variant: 'mystery',
     pin: 'gold'
   },
   {
-    id: 'paper',
-    x: 10, y: 42, rotate: 1.5,
-    label: 'ДОКАЗ 1',
-    icon: '📄',
-    title: 'Папір зі стрілкою',
-    text: 'Стрілка вказує → ПРАВОРУЧ',
-    variant: 'evidence',
-    pin: 'red'
+    id: 'step1',
+    x: 6, y: 40, rotate: 1.5,
+    label: 'КРОК 1 · МЕТА',
+    icon: '🎯',
+    title: 'Навіщо дослід?',
+    text: 'З\'ясувати, як вода\nзмінює напрямок стрілки',
+    variant: 'step',
+    pin: 'violet'
+  },
+  {
+    id: 'step2',
+    x: 6, y: 72, rotate: -1,
+    label: 'КРОК 2 · ГІПОТЕЗА',
+    icon: '💡',
+    title: 'Моє припущення',
+    text: 'Я думаю, що стрілка\nперевернеться',
+    variant: 'step',
+    pin: 'violet'
+  },
+  {
+    id: 'step3',
+    x: 33, y: 12, rotate: 2,
+    label: 'КРОК 3 · МАТЕРІАЛИ Й ПЛАН',
+    icon: '🧰',
+    title: 'Що треба і що робимо',
+    text: 'Склянка · Вода · Папір · Маркер\n+ 6 кроків плану',
+    variant: 'step',
+    pin: 'violet'
   },
   {
     id: 'emptyGlass',
-    x: 36, y: 10, rotate: -1,
-    label: 'ДОКАЗ 2',
+    x: 33, y: 48, rotate: -1.5,
+    label: 'ДОКАЗ 1',
     icon: '🥛',
     title: 'Порожня склянка',
-    text: 'Стрілка НЕ змінюється → НІ',
+    text: 'Стрілка НЕ змінюється\nСкло — не зброя',
     variant: 'evidence',
     pin: 'blue'
   },
   {
     id: 'waterGlass',
-    x: 36, y: 55, rotate: 2,
-    label: 'ДОКАЗ 3',
+    x: 60, y: 10, rotate: 1,
+    label: 'ДОКАЗ 2',
     icon: '💧',
     title: 'Склянка з водою',
-    text: 'Стрілка ПЕРЕВЕРТАЄТЬСЯ → ЛІВОРУЧ',
+    text: 'Стрілка ПЕРЕВЕРТАЄТЬСЯ!\nВода — ось у чому справа',
     variant: 'hot',
     pin: 'red'
   },
   {
-    id: 'version1',
-    x: 62, y: 10, rotate: -2,
-    label: 'ВЕРСІЯ 1',
-    icon: '❌',
-    title: 'Винне скло',
-    text: 'Перевірка — НІ.\nСкло не при чому.',
-    variant: 'rejected',
-    pin: 'gray'
+    id: 'step4',
+    x: 60, y: 48, rotate: -2,
+    label: 'КРОК 4 · ДОСЛІДЖЕННЯ',
+    icon: '🔬',
+    title: 'Шукаємо фокус',
+    text: 'Порожня → нічого\nЗ водою → ЛІВОРУЧ\nТочка перевороту → ФОКУС',
+    variant: 'step',
+    pin: 'violet'
   },
   {
-    id: 'version2',
-    x: 62, y: 52, rotate: 1,
-    label: 'ВЕРСІЯ 2',
-    icon: '✅',
-    title: 'Винна вода',
-    text: 'Перевірка — ТАК!\nВода змінює напрямок.',
-    variant: 'confirmed',
-    pin: 'red'
-  },
-  {
-    id: 'focus',
-    x: 84, y: 18, rotate: -1,
-    label: 'КЛЮЧ',
-    icon: '🎯',
-    title: 'Фокус',
-    text: 'Точка, де промені світла\nперетинаються',
-    variant: 'clue',
-    pin: 'red'
+    id: 'step5',
+    x: 82, y: 12, rotate: 1.5,
+    label: 'КРОК 5 · ВИСНОВКИ',
+    icon: '📊',
+    title: 'Що я зрозумів',
+    text: 'Гіпотеза: підтвердилася\nВода = опукла лінза',
+    variant: 'step',
+    pin: 'violet'
   },
   {
     id: 'verdict',
-    x: 82, y: 62, rotate: 1.5,
+    x: 82, y: 55, rotate: -1,
     label: 'ВИРОК',
     icon: '⚖️',
     title: 'Вода = опукла лінза',
-    text: 'Заломлення світла у фокусі',
+    text: 'Заломлення світла у фокусі —\nось хто «підмінює» знаки!',
     variant: 'verdict',
     pin: 'gold'
-  },
-  {
-    id: 'method',
-    x: 10, y: 72, rotate: -1.5,
-    label: 'МЕТОД',
-    icon: '🔬',
-    title: '4 етапи досліду',
-    text: '1. Підготовка\n2. Матеріали\n3. Проведення\n4. Висновок',
-    variant: 'method',
-    pin: 'blue'
   }
 ];
 
 /* ============================================================
-   НИТКИ між картками (від → до)
+   НИТКИ
    ============================================================ */
 const THREADS = [
-  { from: 'question',  to: 'paper',      color: '#b91c1c', width: 3.5 },
-  { from: 'paper',     to: 'emptyGlass', color: '#b91c1c', width: 3 },
+  { from: 'question',  to: 'step1',      color: '#b91c1c', width: 3.5 },
+  { from: 'step1',     to: 'step2',      color: '#b91c1c', width: 3.5 },
+  { from: 'step2',     to: 'step3',      color: '#b91c1c', width: 3.5 },
+  { from: 'step3',     to: 'emptyGlass', color: '#6b7280', width: 2.5, dashed: true },
   { from: 'emptyGlass',to: 'waterGlass', color: '#b91c1c', width: 4 },
-  { from: 'waterGlass',to: 'version1',   color: '#6b7280', width: 2.5, dashed: true },
-  { from: 'waterGlass',to: 'version2',   color: '#b91c1c', width: 4 },
-  { from: 'version2',  to: 'focus',      color: '#b91c1c', width: 3.5 },
-  { from: 'focus',     to: 'verdict',    color: '#b91c1c', width: 4.5 },
-  { from: 'paper',     to: 'method',     color: '#0369a1', width: 2.5, dashed: true }
+  { from: 'waterGlass',to: 'step4',      color: '#b91c1c', width: 4 },
+  { from: 'step4',     to: 'step5',      color: '#b91c1c', width: 4 },
+  { from: 'step5',     to: 'verdict',    color: '#b91c1c', width: 4.5 }
 ];
 
 /* ============================================================
@@ -483,7 +478,6 @@ function createCards(){
       <div class="card-title">${c.title}</div>
       <div class="card-text">${c.text}</div>
     `;
-    // Drag
     el.addEventListener('pointerdown', onPointerDown);
     board.appendChild(el);
     cardEls[c.id] = el;
@@ -509,11 +503,9 @@ function revealNext(){
     document.getElementById('nextBtn').textContent = '✅ Справу розкрито';
   }
 
-  // Оновити нитки після появи
   updateThreads();
   playDing();
 
-  // Сховати підказку
   if (!hintShown){
     hintShown = true;
     document.getElementById('hintTip').classList.remove('show');
@@ -524,7 +516,7 @@ function resetAll(){
   revealedCount = 0;
   document.getElementById('stepNum').textContent = '0';
   document.getElementById('nextBtn').disabled = false;
-  document.getElementById('nextBtn').textContent = '▶️ Наступний доказ';
+  document.getElementById('nextBtn').textContent = '▶️ Наступний крок';
   Object.values(cardEls).forEach(el => {
     el.classList.remove('revealed', 'dragging', 'just-revealed');
     el.style.zIndex = '';
@@ -558,7 +550,6 @@ function updateThreads(){
     const r1 = fromEl.getBoundingClientRect();
     const r2 = toEl.getBoundingClientRect();
 
-    // Координати відносно дошки
     const c1 = {
       left: r1.left - boardRect.left,
       right: r1.right - boardRect.left,
@@ -576,13 +567,11 @@ function updateThreads(){
       cy: r2.top - boardRect.top + r2.height / 2
     };
 
-    // Обираємо найкоротший шлях між прямокутниками
     const dx = c2.cx - c1.cx;
     const dy = c2.cy - c1.cy;
     let p1, p2;
 
     if (Math.abs(dx) > Math.abs(dy) * 1.2) {
-      // Горизонтальне сполучення
       if (dx > 0) {
         p1 = { x: c1.right, y: c1.cy };
         p2 = { x: c2.left, y: c2.cy };
@@ -591,7 +580,6 @@ function updateThreads(){
         p2 = { x: c2.right, y: c2.cy };
       }
     } else if (Math.abs(dy) > Math.abs(dx) * 1.2) {
-      // Вертикальне сполучення
       if (dy > 0) {
         p1 = { x: c1.cx, y: c1.bottom };
         p2 = { x: c2.cx, y: c2.top };
@@ -600,12 +588,10 @@ function updateThreads(){
         p2 = { x: c2.cx, y: c2.bottom };
       }
     } else {
-      // Діагональ — використовуємо центр
       p1 = { x: c1.cx, y: c1.cy };
       p2 = { x: c2.cx, y: c2.cy };
     }
 
-    // Кубічна Безьє для природного вигину
     const ddx = p2.x - p1.x;
     const ddy = p2.y - p1.y;
     const cp1x = p1.x + ddx * 0.45;
@@ -657,7 +643,6 @@ function onPointerMove(e){
   let x = e.clientX - boardRect.left - dragOffset.x;
   let y = e.clientY - boardRect.top - dragOffset.y;
 
-  // Клампимо в межах дошки
   const maxX = boardRect.width - dragging.offsetWidth;
   const maxY = boardRect.height - dragging.offsetHeight;
   x = Math.max(0, Math.min(maxX, x));
@@ -680,7 +665,7 @@ function onPointerUp(e){
 }
 
 /* ============================================================
-   ЗВУК — короткий «дзинь» на появу картки
+   ЗВУК
    ============================================================ */
 let audioCtx = null;
 function playDing(){
@@ -708,7 +693,6 @@ function playDing(){
 document.getElementById('nextBtn').addEventListener('click', revealNext);
 document.getElementById('resetBtn').addEventListener('click', resetAll);
 
-// Клавіатура: пробіл або → — наступна картка
 window.addEventListener('keydown', (e) => {
   if (e.code === 'Space' || e.code === 'ArrowRight'){
     e.preventDefault();
